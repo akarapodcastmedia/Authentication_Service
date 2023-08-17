@@ -1,0 +1,33 @@
+{
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "bee-queue": "^1.5.0",
+    "bee-queue-scheduler": "^0.1.1",
+    "body-parser": "^1.20.2",
+    "bull": "^4.10.4",
+    "connect-redis": "^7.1.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-http-proxy": "^1.6.3",
+    "express-session": "^1.17.3",
+    "googleapis": "^114.0.0",
+    "joi": "^17.9.2",
+    "joi-password-complexity": "^5.1.0",
+    "jsonwebtoken": "^9.0.0",
+    "milliseconds": "^1.0.3",
+    "mongoose": "^7.2.4",
+    "node-uuid": "^1.4.8",
+    "nodemailer": "^6.9.1",
+    "redis": "^4.6.7"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "auth": "nodemon Auth",
+    "test-dev": "nodemon test"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
