@@ -1,3 +1,4 @@
+require("dotenv").config();
 const nodemailer = require("nodemailer");
 // defined mail configuration
 const Mainserver = async (email,html)=>{
