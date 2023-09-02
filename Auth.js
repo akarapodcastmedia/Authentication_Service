@@ -464,12 +464,11 @@ optsender.post("/signIn",async (req,res)=>{
                     const user = "signed";
                     const scope = "desktop";
                     const identify = "akara"+optGenerator(); 
-                    const refresh = generateToken({email, user ,password,role:user.role,scope,identify:identify},process.env.PROGRAM_REFRESH_TOKEN_SECRET,31104000000); // expire in 1 year after generated
+                    const refresh = generateToken({email,user,password,role:user.role,scope,identify:identify},process.env.PROGRAM_REFRESH_TOKEN_SECRET,31104000000); // expire in 1 year after generated
                     // update the user with including their token
                     await signupModel.updateOne({email: email},{refreshToken : refresh});
                     const html = `<h4> You are logged into system. </h4>`;
-                    Mailer(req.body.email,html,opt);
-                    await redisClient2.flushAll();
+                    Mailer(req.body.email,html);
                     // send the message to the user 
                     return res.json({
                         error : false,
@@ -504,6 +503,7 @@ optsender.post("/signIn",async (req,res)=>{
 //==================================================
 
 optsender.post("/signUp",async (req,res)=>{
+    console.log("come to deskto signUP");
     // pass all the data from the body to validate the fields
     try{
         // to get error while validation , return for Joi library will return error and value object back
@@ -516,48 +516,61 @@ optsender.post("/signUp",async (req,res)=>{
         }else {
         
             if(req.body.password != req.body.confirm){
-                res.json({
+                return res.json({
                     error : true,
                     message : "Your input password is not matched , check it again"
                 })
             }else{
+                console.log("come to execute");
                     // before let the user to register their usernaem check whether they are already registered before
-                    const user = await signupModel.findOne({'email':req.body.email});
+                    const user = await signupModel.findOne({"email": req.body.email});
                     if(user){
-                        if(user.username == req.body.username   ){
+                        console.log("user is already existe");
+                        if(user.username == req.body.username ){
+                            return res.json({
+                                error : true,
+                                message : `${user.username} is already registed`
+                            })
+                        }else{
                             if(user.email == req.body.email){
-                                res.json({
+                                return res.json({
                                     error : true,
                                     message : " You are already registered "
                                 })
                             }
-                           
-                        }             
+                        } 
                     }else{   
+                        
+                                console.log("reach to the last stack");
                                     // take the input password and generate it into hash
                                     const salt = await bcryptGenerator.genSalt(7);
                                     const hassPassword = await bcryptGenerator.hash(req.body.password,salt);
                                     // insert the data to the mogo database 
                                     try{
                                         // insert data into database
+                                        
                                         req.body.password = hassPassword;
                                         req.body.confirm = hassPassword;
                                         data_for_user = req.body;
-                                        opt = optGenerator();
+                                        let opt = optGenerator();
                                         const html = `<h4> Your verify code<span style:"color : red;"> ${opt} </span>keep as a secret</h4>
                                                     <span > Thanks you for joining us .
                                         `;
                                         Mailer(req.body.email,html);
                                         redisClient.setEx("opt_code",300,opt).then(()=> console.log("redis inserted")).catch(e => console.log(e));
                                         redisClient.setEx("email_tmp",300,req.body.email).then(()=> console.log("redis inserted")).catch(e => console.log(e));
-                                        res.status(200).json({
+                                        console.log("completed");
+                                        return res.json({
                                             error : false,
                                             message : "You have 2 minutes to verify your code"
                                         }) ;    
                                     }catch(error){
-                                        console.log("error during insert info to database");
-                                    }
-                                                    
+                                         console.log("error during insert info to database");
+                                        return res.json({
+                                            error : true,
+                                            message : error.message
+                                    })
+                                }                                    
                 }
             }
         }
